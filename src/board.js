@@ -50,7 +50,7 @@ class ButtonGroup extends React.Component {
   }
 }
 
-export class RPSBoard extends React.Component {
+export class ChatBoard extends React.Component {
   static propTypes = {
     G: PropTypes.any.isRequired,
     ctx: PropTypes.any.isRequired,
@@ -60,21 +60,27 @@ export class RPSBoard extends React.Component {
     isMultiplayer: PropTypes.bool
   };
 
-  onClick = action => {
-    console.log("onClick", action);
+  onAddTextClick = (sess_id, msg) => {
+    console.log("onAddTextClick", msg);
     //    this.props.moves.takeAction(action);
-    this.props.moves.takePlayerAction(this.props.playerID, action);
+    this.props.moves.addText(sess_id, parseInt(this.props.playerID), msg);
+  };
+  onAddAvatarClick = (sess_id, avatar) => {
+    console.log("onAddAvatarClick", avatar);
+    //    this.props.moves.takeAction(action);
+    this.props.moves.invite(sess_id, avatar);
+  };
+  onJoinChatClick = (sess_id, topic, player_id) => {
+    console.log("onJoinChatClick", topic);
+    //    this.props.moves.takeAction(action);
+    this.props.moves.createChatSession(sess_id, topic, player_id);
   };
 
   render() {
     console.log("render", this.props.ctx);
     console.log("render", this.props.G);
-    console.log("render", this.props.playerID);
+    console.log("render playerID", this.props.playerID);
     console.log("render isActive", this.props.isActive);
-    console.log(
-      "render this.props.G.actions[this.props.ctx.currentPlayer]",
-      this.props.G.actions[this.props.playerID]
-    );
 
     var youID = this.props.playerID ? this.props.playerID : 0;
     var opponentID = this.props.playerID
@@ -86,39 +92,43 @@ export class RPSBoard extends React.Component {
 
     return (
       <React.Fragment>
-        <div>Game Rules:</div>
-        <div>"⛰️" = Stone, "📝" = Paper, "✂️" = Scissors</div>
-        <div>"⛰️" > "✂️" > "📝" > "⛰️"</div>
-        <div>
-          {this.props.playerID ? "You" : ""} Player {youID}
-        </div>
-        <ButtonGroup
-          onClick={this.onClick}
-          isGameOver={isGameOver}
-          isPlayed={this.props.G.actions[youID] != null ? true : false}
-          selectedButton={this.props.G.players[youID.toString()]}
-        />
-        <div>
-          {this.props.playerID ? "Opponent" : ""} Player
-          {opponentID}
-          {isGameOver ? "game over" : ""}
-        </div>
-        <ButtonGroup
-          isGameOver={isGameOver}
-          isPlayed={this.props.G.actions[opponentID] != null ? true : false}
-          selectedButton={
-            isGameOver
-              ? this.props.ctx.gameover.finalview[opponentID.toString()]
-              : null
+        <div>Chat? Game?</div>
+        <Button
+          variant="contained"
+          size="small"
+          color="primary"
+          style={{ margin: 8, padding: 8 }}
+          onClick={() =>
+            this.onJoinChatClick(
+              this.props.chatSessionID,
+              "Just Say It",
+              parseInt(this.props.playerID)
+            )
           }
-        />
-        <div>
-          {"gameover" in this.props.ctx
-            ? "winner" in this.props.ctx.gameover
-              ? "winner is player " + this.props.ctx.gameover.winner
-              : "draw"
-            : ""}
-        </div>
+          key="joinchat"
+        >
+          Join Chat
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          color="primary"
+          style={{ margin: 8, padding: 8 }}
+          onClick={() => this.onAddAvatarClick(this.props.chatSessionID, 2)}
+          key="addavatar"
+        >
+          Invite Eva
+        </Button>
+        <Button
+          variant="contained"
+          size="small"
+          color="primary"
+          style={{ margin: 8, padding: 8 }}
+          onClick={() => this.onAddTextClick(this.props.chatSessionID, "hihi")}
+          key="addtext"
+        >
+          Add Text
+        </Button>
       </React.Fragment>
     );
   }

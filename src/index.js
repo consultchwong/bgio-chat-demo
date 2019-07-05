@@ -22,8 +22,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { render } from "react-dom";
 import { Client } from "boardgame.io/react";
-import { RPS } from "./game";
-import { RPSBoard } from "./board";
+import { LiveChat } from "./game";
+import { ChatBoard } from "./board";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -49,13 +49,13 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper
   }
 }));
-const RPSClient = Client({
-  game: RPS,
-  board: RPSBoard,
-  //  multiplayer: { local: true }
-  multiplayer: {
+const ChatClient = Client({
+  game: LiveChat,
+  board: ChatBoard,
+  multiplayer: { local: true }
+  /*multiplayer: {
     server: "https://rock-paper-scissors-bgio-serv.herokuapp.com/"
-  }
+  }*/
 });
 
 export default function App() {
@@ -70,21 +70,21 @@ export default function App() {
     <div className={classes.root}>
       <AppBar position="static">
         <Tabs value={value} onChange={handleChange}>
-          <Tab label="Player One" />
-          <Tab label="Player Two" />
+          <Tab label="1" />
+          <Tab label="2" />
         </Tabs>
       </AppBar>
       {value === 0 && (
         <TabContainer>
           <Typography variant="h6" color="inherit">
-            <RPSClient playerID="0" gameID="first_game" />
+            <ChatClient playerID="0" chatSessionID="first_game" />
           </Typography>
         </TabContainer>
       )}
       {value === 1 && (
         <TabContainer>
           <Typography variant="h6" color="inherit">
-            <RPSClient playerID="1" gameID="first_game" />
+            <ChatClient playerID="1" chatSessionID="first_game" />
           </Typography>
         </TabContainer>
       )}
