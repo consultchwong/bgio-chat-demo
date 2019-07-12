@@ -12,20 +12,19 @@ export const LiveChat = Game({
   name: "live-chat",
 
   setup: () => ({
-    chatSession: [
-      {
-        "123456": {
-          topic: "test",
-          subscribers: [],
-          messages: [
-            { avatar: 1, t: "hihi", dt: "2019-07-03T18:25:43.511Z" },
-            { avatar: 1, t: "你好", dt: "2019-07-03T18:25:46.511Z" },
-            { avatar: 2, t: "hihihihi", dt: "2019-07-03T18:25:57.511Z" },
-            { avatar: 3, t: "你好你好", dt: "2019-07-03T18:25:57.511Z" }
-          ]
-        }
+    chatSession: {
+      chathere: {
+        topic: "Just Say It",
+        messages: [
+          {
+            avatar: 0,
+            t: "Thanks for joining the chat",
+            dt: "2019-07-11T08:34:35.152Z"
+          }
+        ],
+        subscribers: [0, 2]
       }
-    ],
+    },
     players: {
       "0": "secret0",
       "1": "secret1"
@@ -33,18 +32,15 @@ export const LiveChat = Game({
     avatars: [
       {
         name: "Adam",
-        pic:
-          "https://en.wikipedia.org/wiki/Adam_Levine#/media/File:AdamLevine2011.jpg"
-      },
-      {
-        name: "Eva",
-        pic:
-          "https://en.wikipedia.org/wiki/Eva_Murati#/media/File:Eva_Murati.jpg"
+        pic: "https://material-ui.com/static/images/avatar/1.jpg"
       },
       {
         name: "Serpent",
-        pic:
-          "https://upload.wikimedia.org/wikipedia/commons/1/1c/Morelia_viridis_-_python_vert_-_loury_cedric_-_wiki.JPG"
+        pic: "https://material-ui.com/static/images/avatar/2.jpg"
+      },
+      {
+        name: "Eva",
+        pic: "https://material-ui.com/static/images/avatar/3.jpg"
       }
     ]
   }),
@@ -58,7 +54,6 @@ export const LiveChat = Game({
         t: msg,
         dt: new Date()
       });
-      console.log("addText G.messages", G.messages);
       console.log("addText ret", { ...G });
     },
     addAvatar(G, ctx, sess_id, avatar) {

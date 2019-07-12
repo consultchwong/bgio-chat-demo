@@ -10,47 +10,51 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./board.css";
 import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import Avatar from "@material-ui/core/Avatar";
+import Grid from "@material-ui/core/Grid";
+import AppBar from "@material-ui/core/AppBar";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import InputBase from "@material-ui/core/InputBase";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import SearchIcon from "@material-ui/icons/Search";
+import SendIcon from "@material-ui/icons/Send";
+import Linkify from "react-linkify";
 
-class ButtonGroup extends React.Component {
-  render() {
-    var isPlayed = this.props.isPlayed;
-    var isActive = this.props.isActive;
-    var selectedButton = this.props.selectedButton;
-    var buttonColor = ["gre️y", "grey", "grey"];
-    var buttonIcon = ["⛰️", "📝", "✂️"];
-    console.log("ButtonGroup isPlayed", isPlayed);
-    console.log("ButtonGroup isActive", isActive);
-    console.log("ButtonGroup selectedButton", selectedButton);
-    buttonColor = buttonColor.map((val, idx) => {
-      if (isPlayed) {
-        if (!selectedButton) {
-          return "secondary";
-        } else if (idx === selectedButton) {
-          return "primary";
-        } else {
-          return "default";
-        }
-      } else {
-        return "primary";
-      }
-    });
-    const buttonList = buttonIcon.map((val, idx) => (
-      <Button
-        variant="contained"
-        size="small"
-        color={buttonColor[idx]}
-        style={{ margin: 8, padding: 8 }}
-        onClick={() => this.props.onClick(idx)}
-        key={val}
-      >
-        {val}
-      </Button>
-    ));
-    return <React.Fragment>{buttonList}</React.Fragment>;
+const useStyles = makeStyles({
+  avatar: {
+    margin: 10
+  },
+  bigAvatar: {
+    margin: 10,
+    width: 60,
+    height: 60
   }
+});
+
+function TabContainer(props) {
+  return (
+    <Typography component="div" style={{ padding: 8 * 3 }}>
+      {props.children}
+    </Typography>
+  );
 }
 
+TabContainer.propTypes = {
+  children: PropTypes.node.isRequired
+};
+
 export class ChatBoard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { tabvalue: 0, inputvalue: "", appbarheight: 96 + 48 };
+  }
+
   static propTypes = {
     G: PropTypes.any.isRequired,
     ctx: PropTypes.any.isRequired,
@@ -63,7 +67,12 @@ export class ChatBoard extends React.Component {
   onAddTextClick = (sess_id, msg) => {
     console.log("onAddTextClick", msg);
     //    this.props.moves.takeAction(action);
-    this.props.moves.addText(sess_id, parseInt(this.props.playerID), msg);
+    this.props.moves.addText(
+      sess_id,
+      parseInt(this.props.playerID),
+      this.linkify(msg)
+    );
+    this.setState({ ...this.state, inputvalue: "" });
   };
   onAddAvatarClick = (sess_id, avatar) => {
     console.log("onAddAvatarClick", avatar);
@@ -75,13 +84,59 @@ export class ChatBoard extends React.Component {
     //    this.props.moves.takeAction(action);
     this.props.moves.createChatSession(sess_id, topic, player_id);
   };
+  onTabChange = (event, newValue) => {
+    var tab_h = 48;
+    var tab_border_h = 48;
+    var tab_item_h = 48;
+    var appbarheight = tab_h + tab_border_h + tab_item_h;
+    if (newValue === 1) tab_item_h = 280;
+    appbarheight = tab_h + tab_border_h + tab_item_h;
+    this.setState({
+      ...this.state,
+      tabvalue: newValue,
+      appbarheight: appbarheight
+    });
+  };
+  onMessageInputChange = value => {
+    this.setState({ ...this.state, inputvalue: value });
+  };
+
+  linkify(text, caption) {
+    var urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    if (caption) {
+      return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '">' + caption + "</a>";
+      });
+    } else {
+      return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '">' + url + "</a>";
+      });
+    }
+  }
+
+  scrollToBottom = () => {
+    this.el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
 
   render() {
+    console.log("render", this.state);
     console.log("render", this.props.ctx);
     console.log("render", this.props.G);
     console.log("render playerID", this.props.playerID);
     console.log("render isActive", this.props.isActive);
-
+    console.log(
+      "render linkify",
+      this.linkify("hello, http://www.yahoo.com.hk", "Link")
+    );
+    var inputvalue = this.state.inputvalue;
     var youID = this.props.playerID ? this.props.playerID : 0;
     var opponentID = this.props.playerID
       ? this.props.playerID == 0
@@ -90,10 +145,108 @@ export class ChatBoard extends React.Component {
       : 1;
     var isGameOver = "gameover" in this.props.ctx;
 
+    var csession = this.props.G["chatSession"][this.props.chatSessionID];
+
+    const msgList = !csession
+      ? ""
+      : this.props.G["chatSession"][this.props.chatSessionID]["messages"].map(
+          (val, idx) => {
+            return (
+              <Paper
+                style={{
+                  margin: 8,
+                  flexDirection: "row",
+                  padding: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  align: "right",
+                  width: "max-content"
+                }}
+              >
+                <Avatar
+                  alt={this.props.G.avatars[val.avatar]["name"]}
+                  src={this.props.G.avatars[val.avatar]["pic"]}
+                  style={{ margin: 10, width: 60, height: 60 }}
+                />
+                <Typography component="p">
+                  <Linkify>{val.t}</Linkify>
+                </Typography>
+              </Paper>
+            );
+          }
+        );
+
+    const emojiList = [
+      "😀",
+      "😄",
+      "😁",
+      "😆",
+      "😅",
+      "🤣",
+      "😂",
+      "🙂",
+      "🙃",
+      "😉",
+      "😊",
+      "😇",
+      "🥰",
+      "😍",
+      "🤩",
+      "😘",
+      "😗",
+      "☺",
+      "😚",
+      "😙",
+      "😋",
+      "😛",
+      "😜",
+      "🤪",
+      "😝",
+      "🤑",
+      "🤗",
+      "🤭",
+      "🤫",
+      "🤔",
+      "🤐",
+      "🤨",
+      "😐",
+      "😑",
+      "😶",
+      "😏",
+      "😒",
+      "🙄",
+      "😬",
+      "🤥",
+      "😌",
+      "😔",
+      "😪",
+      "🤤",
+      "😴",
+      "😷",
+      "🤒",
+      "🤕",
+      "🤢",
+      "🤮",
+      "🤧"
+    ];
+    const emojiButtons = emojiList.map((val, idx) => {
+      return (
+        <IconButton
+          size="big"
+          color="default"
+          style={{ margin: 8, padding: 8 }}
+          onClick={() => this.onAddTextClick(this.props.chatSessionID, val)}
+          key={"emoji_" + idx}
+          component="span"
+        >
+          {val}
+        </IconButton>
+      );
+    });
     return (
       <React.Fragment>
-        <div>Chat? Game?</div>
-        <Button
+        <div>{csession.topic}</div>
+        {/*        <Button
           variant="contained"
           size="small"
           color="primary"
@@ -128,7 +281,69 @@ export class ChatBoard extends React.Component {
           key="addtext"
         >
           Add Text
-        </Button>
+        </Button>*/}
+        <div>
+          {msgList}
+          <div
+            style={{ height: this.state.appbarheight }}
+            ref={el => {
+              this.el = el;
+            }}
+          >
+            {/**Place holder */}{" "}
+          </div>
+        </div>
+        <AppBar
+          position="fixed"
+          color="primary"
+          style={{
+            top: "auto",
+            bottom: 0
+          }}
+        >
+          <Tabs
+            value={this.state.tabvalue}
+            onChange={(evt, newValue) => this.onTabChange(evt, newValue)}
+          >
+            <Tab label="💬" />
+            <Tab label="😃" />
+          </Tabs>
+          {this.state.tabvalue === 0 && (
+            <TabContainer>
+              <Paper
+                style={{
+                  padding: "2px 4px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <InputBase
+                  style={{ marginLeft: 8, flex: 1 }}
+                  placeholder="Add Message Here"
+                  inputProps={{ "aria-label": "Add Message Here" }}
+                  value={this.state.inputvalue}
+                  onChange={evt => this.onMessageInputChange(evt.target.value)}
+                />
+                <IconButton
+                  style={{ padding: 10 }}
+                  aria-label="Send"
+                  onClick={() =>
+                    this.onAddTextClick(this.props.chatSessionID, inputvalue)
+                  }
+                >
+                  <SendIcon />
+                </IconButton>
+              </Paper>
+            </TabContainer>
+          )}
+          {this.state.tabvalue === 1 && (
+            <TabContainer>
+              <Typography variant="h6" color="inherit">
+                {emojiButtons}
+              </Typography>
+            </TabContainer>
+          )}
+        </AppBar>
       </React.Fragment>
     );
   }

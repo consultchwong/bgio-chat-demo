@@ -30,6 +30,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Avatar from "@material-ui/core/Avatar";
 
 function TabContainer(props) {
   return (
@@ -66,25 +67,45 @@ export default function App() {
     setValue(newValue);
   }
 
+  const avatars = [
+    {
+      name: "Adam",
+      pic: "https://material-ui.com/static/images/avatar/1.jpg"
+    },
+    {
+      name: "Serpent",
+      pic: "https://material-ui.com/static/images/avatar/2.jpg"
+    },
+    {
+      name: "Eva",
+      pic: "https://material-ui.com/static/images/avatar/3.jpg"
+    }
+  ];
+
   return (
     <div className={classes.root}>
       <AppBar position="static">
+        <Avatar
+          alt={avatars[value].name}
+          src={avatars[value].pic}
+          style={{ margin: 10, width: 60, height: 60 }}
+        />
         <Tabs value={value} onChange={handleChange}>
-          <Tab label="1" />
-          <Tab label="2" />
+          <Tab label="Adam"> </Tab>
+          <Tab label="Serpent" />
         </Tabs>
       </AppBar>
       {value === 0 && (
         <TabContainer>
           <Typography variant="h6" color="inherit">
-            <ChatClient playerID="0" chatSessionID="first_game" />
+            <ChatClient playerID="0" chatSessionID="chathere" />
           </Typography>
         </TabContainer>
       )}
       {value === 1 && (
         <TabContainer>
           <Typography variant="h6" color="inherit">
-            <ChatClient playerID="1" chatSessionID="first_game" />
+            <ChatClient playerID="1" chatSessionID="chathere" />
           </Typography>
         </TabContainer>
       )}
